@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp">
+
+    <ImageView
+        android:id="@+id/video_thumbnail"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginRight="10dp" />
+
+    <TextView android:id="@+id/video_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/video_thumbnail"
+        android:layout_toLeftOf="@+id/checkbox_select"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="5dp"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <TextView android:id="@+id/video_review_no"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/video_thumbnail"
+        android:layout_alignBottom="@+id/video_thumbnail"
+        android:textSize="11sp" />
+
+    <TextView android:id="@+id/video_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/video_thumbnail"
+        android:layout_toRightOf="@+id/video_review_no"
+        android:layout_marginLeft="5dp"
+        android:textSize="12sp" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkbox_favorite"
+        android:layout_alignParentEnd="true"
+        style="?android:attr/starStyle"
+        android:focusable="false" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/checkbox_select"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/video_thumbnail"
+        android:focusable="false" />
+
+</RelativeLayout>

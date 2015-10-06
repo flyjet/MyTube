@@ -1,0 +1,22 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="edu.sjsu.qi.mytube.MyTubeActivity"
+    android:id="@+id/container">
+
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        tools:showAsAction="never" />
+
+    <!-- TODO: SearchView does not show in aciton bar, need debug-->
+
+    <item android:id="@+id/menu_search"
+        android:title="@string/title_menu_search"
+        android:icon="@drawable/ic_search"
+        android:actionViewClass="android.widget.SearchView"
+        android:showAsAction="always"/>
+
+    <!-- appcompat:actionViewClass= "android.support.v7.widget.SearchView"
+         also does not work-->
+
+</menu>
