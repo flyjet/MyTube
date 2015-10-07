@@ -126,9 +126,7 @@ public class SearchFragment extends Fragment {
                         .load(searchResult.getThumbnailURL()).into(thumbnail);
                 title.setText(searchResult.getTitle());
                 views.setText(searchResult.getViews().toString() +"  views");
-
-                //Todo: need show the publish date, but did not get result from query
-                //pub_date.setText();
+                pub_date.setText(searchResult.getPub_date().toString().substring(0,10));
 
                 //checkbox_select for fragment favorite, here is invisible
                 convertView.findViewById(R.id.checkbox_select).setVisibility(View.INVISIBLE);

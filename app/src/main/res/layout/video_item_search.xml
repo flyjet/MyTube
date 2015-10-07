@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/video_thumbnail"
         android:layout_toRightOf="@+id/video_review_no"
-        android:layout_marginLeft="5dp"
+        android:layout_marginLeft="18dp"
         android:textSize="12sp" />
 
     <CheckBox

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 /**
  * Created by qi on 10/5/15.
  */
@@ -44,9 +45,6 @@ public class YouTubeConnector {
             query.setKey(KEY);
             query.setType("video");
             query.setMaxResults(NUMBER_OF_VIDEOS_RETURNED);
-
-            //Todo: need to query statistics/viewCount - but it does not work
-            //query.setFields("items(id/videoId,snippet/title,statistics/viewCount,snippet/publishedAt,/snippet/thumbnails/default/url)");
             query.setFields("items(id/videoId,snippet/title,snippet/publishedAt,snippet/thumbnails/default/url)");
         } catch (IOException e) {
             Log.d("YouTube", "Could not initialize" + e);
