@@ -3,6 +3,7 @@ package edu.sjsu.qi.mytube;
 import android.content.Intent;
 import android.app.Activity;
 import android.content.IntentSender;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -10,12 +11,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.GoogleAuthException;
+import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.android.gms.auth.UserRecoverableAuthException;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.*;
 import com.google.android.gms.common.*;
+
+
+import java.io.IOException;
 
 
 public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -30,8 +37,9 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private SignInButton mSignInButton;
 
     private static final String SAVED_PROGRESS = "sign_in_progress";
-
+    private static final int REQUEST_AUTHORIZATION = 89898;
     private int mSignInProgress;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,13 +101,15 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         Log.d(TAG, "onConnected:" + bundle);
         mShouldResolve = false;
 
+        //Get ID Token
+        new GetIdTokenTask().execute();
+
         // Show the signed-in UI
-        Intent intent = new Intent(MainActivity.this, MyTubeActivity.class);
-        startActivity(intent);
+        //Intent intent = new Intent(MainActivity.this, MyTubeActivity.class);
+        //startActivity(intent);
     }
 
     @Override
-
     public void onConnectionFailed(ConnectionResult connectionResult) {
         // Could not connect to Google Play Services.  The user needs to select an account,
         // grant permissions or resolve an error in order to sign in. Refer to the javadoc for
@@ -142,6 +152,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             }
             mIsResolving = false;
             mGoogleApiClient.connect();
+
         }
     }
 
@@ -175,4 +186,48 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         mIsResolving=false;
     }
 
+
+    //Get Access Token
+     private class GetIdTokenTask extends AsyncTask<Void, Void, String> {
+        private String token ="";
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String accountName = Plus.AccountApi.getAccountName(mGoogleApiClient);
+
+            String scope = "oauth2:" + Scopes.PROFILE + "  https://www.googleapis.com/auth/youtube";
+            //String scope = "oauth2: https://www.googleapis.com/auth/youtube";
+
+            Log.d(TAG, "accountName " + accountName);
+
+            try {
+                token =  GoogleAuthUtil.getToken(getApplicationContext(), accountName, scope, new Bundle());
+                Log.d(TAG, "token " + token);
+
+            } catch (UserRecoverableAuthException e) {
+                Log.w(TAG, "Error retrieving the token: " + e.getMessage());
+                Log.d(TAG, "Trying to solve the problem...");
+                startActivityForResult(e.getIntent(), REQUEST_AUTHORIZATION);
+            } catch (IOException e) {
+                Log.e(TAG, "Error retrieving ID token.", e);
+            } catch (GoogleAuthException e) {
+                Log.e(TAG, "Error retrieving ID token.", e);
+            }
+            return token;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+
+                Intent intent = new Intent(MainActivity.this, MyTubeActivity.class);
+                intent.putExtra("AccessToken", result);
+                startActivity(intent);
+
+            } else {
+                // There was some error getting the ID Token
+                // ...
+            }
+        }
+    }
 }

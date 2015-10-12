@@ -9,6 +9,7 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.Window;
 import android.view.MenuItem;
@@ -18,6 +19,8 @@ import android.content.Intent;
 
 public class MyTubeActivity extends Activity {
 
+    private static final String TAG = MyTubeActivity.class.getSimpleName();
+
     // Declaring two tabs and corresponding fragments
 
     Tab searchTab, favoriteTab;
@@ -25,11 +28,15 @@ public class MyTubeActivity extends Activity {
     Fragment favoriteFragment = new FavoriteFragment();
 
     String query=""; // String from searchView
-
+    String token="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Bundle extras = getIntent().getExtras();
+        token = extras.getString("AccessToken");
+        Log.i(TAG, "ID token from MainActivity: " + token);
+
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_mytube);
 
@@ -44,17 +51,8 @@ public class MyTubeActivity extends Activity {
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         //Setting tabs
-        searchTab = actionBar.newTab().setText("PLAYLIST");
+        searchTab = actionBar.newTab().setText("ALL");
         favoriteTab = actionBar.newTab().setText("FAVORITE");
-
-        /*
-        FragmentManager fragmentManager = getFragmentManager();
-        searchFragment = (SearchFragment)fragmentManager.findFragmentById(R.id.Fragment_search);
-        if(searchFragment == null){
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.container, searchFragment);
-            fragmentTransaction.commit();
-        }*/
 
         //Setting tab listeners
         searchTab.setTabListener(new TabListener(searchFragment));
@@ -69,9 +67,13 @@ public class MyTubeActivity extends Activity {
 
         Bundle bundle = new Bundle();
         bundle.putString("QueryKeyWord", query);
+        bundle.putString("Token", token);
         searchFragment.setArguments(bundle);
 
     }
+
+
+    //Todo, need move the menu of search to the SearchFragment, then it won't show at FavoriteFragment
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
