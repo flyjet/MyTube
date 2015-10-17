@@ -43,7 +43,7 @@ public class SearchFragment extends Fragment {
 
     //Todo, here use hard code for accessToken, should be null and get from main Activity
     private static String accessToken
-        ="ya29.CgJPemdpkZyXmCRtJMV0Hochrl9glq4bZrSMI3Nl_coqP9fhNMbvQ8KTzCVEVj49MOrqAA";
+        ="ya29.DwKzbVpE9RKt0ymQBAJAUzAxT7BbzFgmV82vh_DAWbAst6O-lXYjIOJeo69iiNWE10E_jw";
 
 
     //This is the ID for Playlist of SJSU-CMPE-277 under my channel "Annie Cao"

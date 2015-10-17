@@ -3,13 +3,13 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="5dp">
+    android:padding="4dp">
 
     <ImageView
         android:id="@+id/video_thumbnail"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:layout_marginRight="10dp" />
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginRight="8dp" />
 
     <TextView android:id="@+id/video_title"
         android:layout_width="wrap_content"
@@ -17,8 +17,8 @@
         android:layout_toRightOf="@+id/video_thumbnail"
         android:layout_toLeftOf="@+id/checkbox_select"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="5dp"
-        android:textSize="13sp"
+        android:layout_marginTop="4dp"
+        android:textSize="12sp"
         android:textStyle="bold" />
 
     <TextView android:id="@+id/video_review_no"

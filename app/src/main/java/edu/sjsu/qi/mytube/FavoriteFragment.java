@@ -24,9 +24,11 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.PlaylistItem;
 import com.google.api.services.youtube.model.PlaylistItemListResponse;
+import com.google.api.services.youtube.model.Video;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,14 +40,13 @@ public class FavoriteFragment extends Fragment {
 
     private Handler handler;
     private static final String TAG = FavoriteFragment.class.getSimpleName();
-
     //This is the ID for Playlist of SJSU-CMPE-277 under my channel "Annie Cao"
     private String PLAYLIST_ID = "PLcmb3fCvZSrX8xVUUzfqN8RfZBXlhrvjf";
     private String PLAYLIST_TITLE = "SJSU-CMPE-277";
 
     //Todo, same as SearchFragment,here use hard code for accessToken, should be null and get from main Activity
     private static String accessToken
-            ="ya29.CgJPemdpkZyXmCRtJMV0Hochrl9glq4bZrSMI3Nl_coqP9fhNMbvQ8KTzCVEVj49MOrqAA";
+            ="ya29.DwKzbVpE9RKt0ymQBAJAUzAxT7BbzFgmV82vh_DAWbAst6O-lXYjIOJeo69iiNWE10E_jw";
 
 
     public FavoriteFragment() {
@@ -151,14 +152,24 @@ public class FavoriteFragment extends Fragment {
                 PlaylistItemListResponse response = playlistItemRequest.execute();
                 playlistItemList.addAll(response.getItems());
 
-                for(PlaylistItem i: playlistItemList){
+                for(final PlaylistItem i: playlistItemList){
                     VideoItem item = new VideoItem();
                     item.setId(i.getContentDetails().getVideoId());
                     item.setTitle(i.getSnippet().getTitle());
                     item.setThumbnailURL(i.getSnippet().getThumbnails().getDefault().getUrl());
                     item.setPub_date(i.getSnippet().getPublishedAt());
 
-                    //Todo getViewCount from video Id
+                    // getViewCount from video Id
+                    YouTubeConnector yc = new YouTubeConnector(getActivity());
+                    try {
+                        YouTube.Videos.List listVideosRequest = yc.getYouTube().videos().list("snippet, statistics").setId(i.getContentDetails().getVideoId());
+                        listVideosRequest.setKey(yc.getKey());
+                        Video video = listVideosRequest.execute().getItems().get(0);
+                        BigInteger viewCount = video.getStatistics().getViewCount();
+                        item.setViews(viewCount);
+                    }catch (IOException e) {
+                        Log.d("YC", "Could not query viewCount: " + e);
+                    }
 
                     items.add(item);
                 }
@@ -199,10 +210,7 @@ public class FavoriteFragment extends Fragment {
                 Picasso.with(getActivity().getApplicationContext())
                         .load(favoriteResult.getThumbnailURL()).into(thumbnail);
                 title.setText(favoriteResult.getTitle());
-
-                //Todo need to getViewCount to set here
-                //views.setText(favroiteResult.getViews().toString() + "  views");
-
+                views.setText(favoriteResult.getViews().toString() + "  views");
                 pub_date.setText(favoriteResult.getPub_date().toString().substring(0, 10));
 
 

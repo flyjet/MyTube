@@ -55,6 +55,7 @@ public class YouTubeConnector {
     public YouTube getYouTube(){
         return youTube;
     }
+    public String getKey(){ return KEY;}
 
     public List<VideoItem> search(String queryTerm) {
         query.setQ(queryTerm);
