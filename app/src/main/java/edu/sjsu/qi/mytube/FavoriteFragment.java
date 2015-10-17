@@ -40,14 +40,13 @@ public class FavoriteFragment extends Fragment {
 
     private Handler handler;
     private static final String TAG = FavoriteFragment.class.getSimpleName();
+
     //This is the ID for Playlist of SJSU-CMPE-277 under my channel "Annie Cao"
     private String PLAYLIST_ID = "PLcmb3fCvZSrX8xVUUzfqN8RfZBXlhrvjf";
     private String PLAYLIST_TITLE = "SJSU-CMPE-277";
 
-    //Todo, same as SearchFragment,here use hard code for accessToken, should be null and get from main Activity
-    private static String accessToken
-            ="ya29.DwKzbVpE9RKt0ymQBAJAUzAxT7BbzFgmV82vh_DAWbAst6O-lXYjIOJeo69iiNWE10E_jw";
-
+    private static String accessToken= "";
+            //="ya29.DwI0LBBBJTh9Kn99Oy38WEFuU-DPRWrTqPjb-WBepqpEsrVc9O6GGDMcQkZn8nK2zdFBHg";
 
     public FavoriteFragment() {
         // Required empty public constructor
@@ -56,19 +55,19 @@ public class FavoriteFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search, container, false);
+
+        //Get accessToken from MyTube Activity
+        accessToken = getArguments().getString("Token");
+        Log.d(TAG, "Token from favorite fragment: " + accessToken);
 
         handler = new Handler();
         videosFavorite = (ListView)view.findViewById(R.id.listView_search);
@@ -88,10 +87,13 @@ public class FavoriteFragment extends Fragment {
                 //here start the Player Activity
             }
         });
-
         return view;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_favorite, menu);
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -112,7 +114,7 @@ public class FavoriteFragment extends Fragment {
 
                 handler.post(new Runnable() {
                     public void run() {
-                        updateVideosFound();   //show the FavriteList in ListView
+                        updateVideosFound();   //show the FavoriteList in ListView
                     }
                 });
             }
@@ -186,8 +188,6 @@ public class FavoriteFragment extends Fragment {
     }
 
     private void updateVideosFound(){
-
-        Log.d(TAG, "fetched video items from playlist ");
 
         //create an ArrayAdapter
         ArrayAdapter<VideoItem> adapter = new ArrayAdapter<VideoItem>(getActivity().getApplicationContext(),

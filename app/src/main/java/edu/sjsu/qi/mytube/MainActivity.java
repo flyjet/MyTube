@@ -152,7 +152,6 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
             }
             mIsResolving = false;
             mGoogleApiClient.connect();
-
         }
     }
 
@@ -188,7 +187,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
 
 
     //Get Access Token
-     private class GetIdTokenTask extends AsyncTask<Void, Void, String> {
+    private class GetIdTokenTask extends AsyncTask<Void, Void, String> {
         private String token ="";
 
         @Override
@@ -219,14 +218,12 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         @Override
         protected void onPostExecute(String result) {
             if (result != null) {
-
                 Intent intent = new Intent(MainActivity.this, MyTubeActivity.class);
                 intent.putExtra("AccessToken", result);
                 startActivity(intent);
 
             } else {
                 // There was some error getting the ID Token
-                // ...
             }
         }
     }

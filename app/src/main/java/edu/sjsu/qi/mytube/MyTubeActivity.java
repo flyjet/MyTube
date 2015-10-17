@@ -3,7 +3,6 @@ package edu.sjsu.qi.mytube;
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Fragment;
-import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.Context;
@@ -16,26 +15,33 @@ import android.view.MenuItem;
 import android.widget.SearchView;
 import android.content.Intent;
 
-
 public class MyTubeActivity extends Activity {
 
     private static final String TAG = MyTubeActivity.class.getSimpleName();
 
     // Declaring two tabs and corresponding fragments
-
     Tab searchTab, favoriteTab;
     Fragment searchFragment = new SearchFragment();
     Fragment favoriteFragment = new FavoriteFragment();
 
-    String query=""; // String from searchView
-    String token="";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //get AccessToken from main activity
         Bundle extras = getIntent().getExtras();
-        token = extras.getString("AccessToken");
-        Log.i(TAG, "ID token from MainActivity: " + token);
+        String token = extras.getString("AccessToken");
+        Log.d(TAG, "Token from MyTube Activity: " + token);
+
+        //send Token to search fragment and favorite fragment
+        Bundle bundle = new Bundle();
+        bundle.putString("Token", token);
+        SearchFragment searchFragment = new SearchFragment();
+        searchFragment.setArguments(bundle);
+
+        FavoriteFragment favoriteFragment = new FavoriteFragment();
+        favoriteFragment.setArguments(bundle);
+
 
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_mytube);
@@ -61,59 +67,21 @@ public class MyTubeActivity extends Activity {
         //Adding tabs to the ActionBar
         actionBar.addTab(searchTab);
         actionBar.addTab(favoriteTab);
-
-        //Get the text from SearchView
-        handleIntent(getIntent());
-
-        Bundle bundle = new Bundle();
-        bundle.putString("QueryKeyWord", query);
-        bundle.putString("Token", token);
-        searchFragment.setArguments(bundle);
-
     }
-
-
-    //Todo, need move the menu of search to the SearchFragment, then it won't show at FavoriteFragment
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-
-        //Display the SearchView in th action bar
-        getMenuInflater().inflate(R.menu.menu_my_tube, menu);
-
-        // Associate searchable configuration with the SearchView
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-
+        getMenuInflater().inflate(R.menu.menu_mytube, menu);
         return true;
     }
 
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        handleIntent(intent);
-    }
-
-    private void handleIntent(Intent intent) {
-
-        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-            query = intent.getStringExtra(SearchManager.QUERY);
-        }
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -141,6 +109,5 @@ public class MyTubeActivity extends Activity {
         @Override
         public void onTabReselected(Tab tab, FragmentTransaction ft) {
         }
-
     }
 }

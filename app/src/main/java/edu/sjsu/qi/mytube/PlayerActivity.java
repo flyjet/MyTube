@@ -28,9 +28,7 @@ public class PlayerActivity extends YouTubeBaseActivity  implements
     @Override
     public void onInitializationFailure(YouTubePlayer.Provider provider,
                                         YouTubeInitializationResult errorReason){
-
         Toast.makeText(this, "Can not initialize YouTube Player ", Toast.LENGTH_LONG).show();
-
     }
 
     @Override

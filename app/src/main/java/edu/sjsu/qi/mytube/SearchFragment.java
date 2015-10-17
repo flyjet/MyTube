@@ -1,6 +1,7 @@
 package edu.sjsu.qi.mytube;
 
 import android.app.Activity;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -8,6 +9,9 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -15,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,19 +42,18 @@ public class SearchFragment extends Fragment {
     private static String queryKeyWord;
 
     private ListView videosFound;
+    private SearchView searchView;
     private Handler handler;
+    private String query="";
     private List<VideoItem> searchResults;
     private static final String TAG = SearchFragment.class.getSimpleName();
 
-    //Todo, here use hard code for accessToken, should be null and get from main Activity
-    private static String accessToken
-        ="ya29.DwKzbVpE9RKt0ymQBAJAUzAxT7BbzFgmV82vh_DAWbAst6O-lXYjIOJeo69iiNWE10E_jw";
-
+    private static String accessToken;
+    //  ="ya29.DwLcwWdjMie5iMMxB-JOaGu_5lnz-p-e5pPuxSMijOb6cRPdKs_1rom0vRZb72o_aYt4ng";
 
     //This is the ID for Playlist of SJSU-CMPE-277 under my channel "Annie Cao"
     private String PLAYLIST_ID = "PLcmb3fCvZSrX8xVUUzfqN8RfZBXlhrvjf";
     private String PLAYLIST_TITLE = "SJSU-CMPE-277";
-
 
     public SearchFragment() {
         // Required empty public constructor
@@ -58,13 +62,11 @@ public class SearchFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        queryKeyWord = getArguments().getString("QueryKeyWord");
+        setHasOptionsMenu(true);
 
-        //Todo: has bug to get the accessToken
-
-        //accessToken = getArguments().getString("Token");
+        //Get accessToken from MyTube Activity
+        accessToken = getArguments().getString("Token");
         Log.d(TAG, "Token from search fragment: " + accessToken);
-
     }
 
     @Override
@@ -75,11 +77,6 @@ public class SearchFragment extends Fragment {
 
         handler = new Handler();
         videosFound = (ListView)view.findViewById(R.id.listView_search);
-
-        if(!TextUtils.isEmpty(queryKeyWord)){
-            searchOnYoutube(queryKeyWord);
-        }
-
         //sets the OnItemClickListener of the ListView
         // so that the user can click on a search result and watch the corresponding video.
         videosFound.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -93,6 +90,38 @@ public class SearchFragment extends Fragment {
             }
         });
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater){
+        inflater.inflate(R.menu.menu_search, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(getActivity().SEARCH_SERVICE);
+        final SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+            @Override
+            public boolean onQueryTextSubmit(String query){
+                searchView.clearFocus();
+                if(!TextUtils.isEmpty(query)){
+                    searchOnYoutube(query);
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText){
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle item selection
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -185,8 +214,7 @@ public class SearchFragment extends Fragment {
     protected void insertPlaylistItem(final String playlistID, final String videoId) {
         Log.d(TAG, "Token from search fragment: " + accessToken);
 
-        //Todo need check the video is already is playlist or not
-
+        //Todo: need check the video is already is playlist or not
 
         new Thread(){
             public void run(){
@@ -234,7 +262,6 @@ public class SearchFragment extends Fragment {
                     Log.d(TAG, "Could not insert video item to playlist: " + e);
                 }
             }
-
         }.start();
 
     }
