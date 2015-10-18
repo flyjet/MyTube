@@ -42,17 +42,16 @@ public class SearchFragment extends Fragment {
     private static String queryKeyWord;
 
     private ListView videosFound;
-    private SearchView searchView;
     private Handler handler;
-    private String query="";
     private List<VideoItem> searchResults;
     private static final String TAG = SearchFragment.class.getSimpleName();
 
-    private static String accessToken;
+    private String accessToken;
     //  ="ya29.DwLcwWdjMie5iMMxB-JOaGu_5lnz-p-e5pPuxSMijOb6cRPdKs_1rom0vRZb72o_aYt4ng";
 
     //This is the ID for Playlist of SJSU-CMPE-277 under my channel "Annie Cao"
-    private String PLAYLIST_ID = "PLcmb3fCvZSrX8xVUUzfqN8RfZBXlhrvjf";
+    private String palylistID;
+            //"PLcmb3fCvZSrX8xVUUzfqN8RfZBXlhrvjf";
     private String PLAYLIST_TITLE = "SJSU-CMPE-277";
 
     public SearchFragment() {
@@ -66,7 +65,11 @@ public class SearchFragment extends Fragment {
 
         //Get accessToken from MyTube Activity
         accessToken = getArguments().getString("Token");
-        Log.d(TAG, "Token from search fragment: " + accessToken);
+        Log.d(TAG, "Token from mytube activity: " + accessToken);
+
+        //Get PlayList Id from MyTube Activity
+        palylistID = getArguments().getString("PlaylistId");
+        Log.d(TAG, "Playlist_id from mytube activity: " + palylistID);
     }
 
     @Override
@@ -134,6 +137,7 @@ public class SearchFragment extends Fragment {
         super.onDetach();
     }
 
+
     //Create a Thread to initialize a YouTubeConnector instance and run its search method
     private void searchOnYoutube(final String keywords){
         new Thread(){
@@ -161,7 +165,6 @@ public class SearchFragment extends Fragment {
             public View getView(int position, View convertView, ViewGroup parent){
 
                 if(convertView == null){
-
                     convertView = getActivity().getLayoutInflater().inflate(R.layout.video_item_search, parent, false);
                 }
 
@@ -193,11 +196,10 @@ public class SearchFragment extends Fragment {
                         Log.d(TAG, "Checkbox favorite is clicked ");
 
                         //call the method to insert the video to Playlist
-                        insertPlaylistItem(PLAYLIST_ID, searchResult.getId());
+                        insertPlaylistItem(palylistID, searchResult.getId());
                         Toast.makeText(getActivity().getApplicationContext(),
-                                "The video is inserted to your playlist", Toast.LENGTH_LONG).show();
+                                "The video " + searchResult.getTitle() + " is inserted to your playlist", Toast.LENGTH_LONG).show();
                     }
-
                 });
 
                 //checkbox_select for fragment favorite, here is invisible
@@ -211,6 +213,7 @@ public class SearchFragment extends Fragment {
     }
 
 
+    //Insert video to playlist
     protected void insertPlaylistItem(final String playlistID, final String videoId) {
         Log.d(TAG, "Token from search fragment: " + accessToken);
 
@@ -248,10 +251,7 @@ public class SearchFragment extends Fragment {
 
                 // Call the API to add the playlist item to the specified playlist.
                 try {
-
-                    Log.d(TAG, "Item need to insert to playlist ");
-
-                    YouTube.PlaylistItems.Insert playlistItemsInsertCommand =
+                   YouTube.PlaylistItems.Insert playlistItemsInsertCommand =
                             youtube.playlistItems().insert("snippet,contentDetails", playlistItem);
 
                     PlaylistItem returnedPlaylistItem =
@@ -263,6 +263,5 @@ public class SearchFragment extends Fragment {
                 }
             }
         }.start();
-
     }
 }

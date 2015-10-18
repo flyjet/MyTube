@@ -42,10 +42,11 @@ public class FavoriteFragment extends Fragment {
     private static final String TAG = FavoriteFragment.class.getSimpleName();
 
     //This is the ID for Playlist of SJSU-CMPE-277 under my channel "Annie Cao"
-    private String PLAYLIST_ID = "PLcmb3fCvZSrX8xVUUzfqN8RfZBXlhrvjf";
+    private String playlistID;
+            //="PLcmb3fCvZSrX8xVUUzfqN8RfZBXlhrvjf";
     private String PLAYLIST_TITLE = "SJSU-CMPE-277";
 
-    private static String accessToken= "";
+    private String accessToken= "";
             //="ya29.DwI0LBBBJTh9Kn99Oy38WEFuU-DPRWrTqPjb-WBepqpEsrVc9O6GGDMcQkZn8nK2zdFBHg";
 
     public FavoriteFragment() {
@@ -58,7 +59,6 @@ public class FavoriteFragment extends Fragment {
         setHasOptionsMenu(true);
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -69,10 +69,13 @@ public class FavoriteFragment extends Fragment {
         accessToken = getArguments().getString("Token");
         Log.d(TAG, "Token from favorite fragment: " + accessToken);
 
+        playlistID = getArguments().getString("PlaylistId");
+        Log.d(TAG, "Playlist_id from mytube activity: " + playlistID);
+
         handler = new Handler();
         videosFavorite = (ListView)view.findViewById(R.id.listView_search);
 
-        showFavoriteList(PLAYLIST_ID);
+        showFavoriteList(playlistID);
 
         //sets the OnItemClickListener of the ListView
         // so that the user can click on a favorite result and watch the corresponding video.
@@ -231,5 +234,4 @@ public class FavoriteFragment extends Fragment {
         //Assign adapter to Listview
         videosFavorite.setAdapter(adapter);
     }
-
 }

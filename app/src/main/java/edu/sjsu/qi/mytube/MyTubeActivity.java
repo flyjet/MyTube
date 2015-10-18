@@ -4,44 +4,44 @@ import android.app.ActionBar;
 import android.app.ActionBar.Tab;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.app.SearchManager;
-import android.content.Context;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.Window;
 import android.view.MenuItem;
-import android.widget.SearchView;
-import android.content.Intent;
 
 public class MyTubeActivity extends Activity {
 
     private static final String TAG = MyTubeActivity.class.getSimpleName();
+
+    private final String PLAYLIST_TITLE="SJSU-CMPE-277";
+    private static final int REQUEST_AUTHORIZATION = 98;
 
     // Declaring two tabs and corresponding fragments
     Tab searchTab, favoriteTab;
     Fragment searchFragment = new SearchFragment();
     Fragment favoriteFragment = new FavoriteFragment();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //get AccessToken from main activity
+        //get AccessToken and playlistID from main activity
         Bundle extras = getIntent().getExtras();
         String token = extras.getString("AccessToken");
         Log.d(TAG, "Token from MyTube Activity: " + token);
 
-        //send Token to search fragment and favorite fragment
+        String playlistID = extras.getString("PlaylistId");
+        Log.d(TAG, "Playlist ID from MyTube Activity: " + playlistID);
+
+        //put AccessToken and playlistID to search and favorite fragment
         Bundle bundle = new Bundle();
+        bundle.putString("PlaylistId", playlistID);
         bundle.putString("Token", token);
-        SearchFragment searchFragment = new SearchFragment();
         searchFragment.setArguments(bundle);
-
-        FavoriteFragment favoriteFragment = new FavoriteFragment();
         favoriteFragment.setArguments(bundle);
-
 
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
         setContentView(R.layout.activity_mytube);

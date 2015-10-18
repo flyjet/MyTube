@@ -20,9 +20,15 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.plus.*;
 import com.google.android.gms.common.*;
-
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.Playlist;
+import com.google.api.services.youtube.model.PlaylistListResponse;
 
 import java.io.IOException;
+import java.util.List;
 
 
 public class MainActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -40,6 +46,9 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
     private static final int REQUEST_AUTHORIZATION = 89898;
     private int mSignInProgress;
 
+    private String accessCode = "";
+    private String playlistID = "";
+    private String PLAYLIST_TITLE="SJSU-CMPE-277";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +58,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         mSignInButton=(SignInButton)findViewById(R.id.button_Login);
         mSignInButton.setOnClickListener(this);
         if(savedInstanceState!=null){
-
         }
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
@@ -101,12 +110,8 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         Log.d(TAG, "onConnected:" + bundle);
         mShouldResolve = false;
 
-        //Get ID Token
+        //Get User Access Token
         new GetIdTokenTask().execute();
-
-        // Show the signed-in UI
-        //Intent intent = new Intent(MainActivity.this, MyTubeActivity.class);
-        //startActivity(intent);
     }
 
     @Override
@@ -218,13 +223,75 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         @Override
         protected void onPostExecute(String result) {
             if (result != null) {
-                Intent intent = new Intent(MainActivity.this, MyTubeActivity.class);
-                intent.putExtra("AccessToken", result);
-                startActivity(intent);
+                accessCode =result;
+                //Get user's playlist Id which title is "SJSU-CMPE-277"
+                new GetPlaylistIDTask().execute();
 
             } else {
                 // There was some error getting the ID Token
             }
         }
     }
+
+
+    //Retrieve Playlist ID for title= "SJSU-CMPE-277"
+    private class GetPlaylistIDTask extends AsyncTask<Void, Void, String> {
+        private String listID="";
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try{
+
+                GoogleCredential credential = new GoogleCredential.Builder()
+                        .setTransport(new NetHttpTransport())
+                        .setJsonFactory(new JacksonFactory())
+                        .build();
+                credential.setAccessToken(accessCode);
+
+                // This object is used to make YouTube Data API requests.
+                YouTube youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), credential)
+                        .setApplicationName("MyTube")
+                        .build();
+
+                // Define the API request for retrieving search results.
+                PlaylistListResponse playlistListResponse = youtube.playlists()
+                        .list("id, snippet")
+                        .setMine(true)
+                        .execute();
+
+                List<Playlist> playlistResultList = playlistListResponse.getItems();
+
+                if(playlistResultList != null ){
+
+                    for(int i=0; i< playlistResultList.size(); i++){
+                        Log.d(TAG, "playlist title " + playlistResultList.get(i).getSnippet().getTitle());
+
+                        if(playlistResultList.get(i).getSnippet().getTitle().equals(PLAYLIST_TITLE) ){
+                            listID = playlistResultList.get(i).getId();
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Error retrieving Playlist ID.", e);
+            }
+            return listID;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                playlistID =result;
+                Log.d(TAG,"playlistId " + playlistID);
+
+                Intent intent = new Intent(MainActivity.this, MyTubeActivity.class);
+                intent.putExtra("AccessToken", accessCode);
+                intent.putExtra("PlaylistId", playlistID);
+                startActivity(intent);
+
+            } else {
+                // There was some error getting the playlistID
+            }
+        }
+    }
+
 }
