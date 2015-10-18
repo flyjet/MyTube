@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -48,6 +49,9 @@ public class FavoriteFragment extends Fragment {
     private String playlistID;
             //="PLcmb3fCvZSrX8xVUUzfqN8RfZBXlhrvjf";
     private String PLAYLIST_TITLE = "SJSU-CMPE-277";
+
+    private List<String> deleteIDs = new ArrayList<String>();
+
 
     private String accessToken= "";
             //="ya29.DwI0LBBBJTh9Kn99Oy38WEFuU-DPRWrTqPjb-WBepqpEsrVc9O6GGDMcQkZn8nK2zdFBHg";
@@ -100,6 +104,45 @@ public class FavoriteFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_favorite, menu);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+
+        switch (item.getItemId()){
+            case R.id.menu_favorite:
+
+                if(deleteIDs != null){
+                    int size = deleteIDs.size();
+                    for(String i: deleteIDs){
+                        deletePlaylistItem(i);
+                    }
+                    Toast.makeText(getActivity().getApplicationContext(),
+                            size + " video deleted from your playlist", Toast.LENGTH_LONG).show();
+
+                    deleteIDs.clear();
+
+                    //TODO the list not refresh, even though the flowing code are called
+                    //update list result
+                    new Thread(){
+                        public void run(){
+                            favoriteResults = fetch(playlistID);
+                            Log.d(TAG, "Fetch videos again from playlist ");
+                            handler.post(new Runnable() {
+                                public void run() {
+                                    updateVideosFound();   //show the FavoriteList in ListView
+                                    Log.d(TAG, "List videos again from playlist ");
+                                }
+                            });
+                        }
+                    }.start();
+
+                }//end of if
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     @Override
     public void onAttach(Activity activity) {
@@ -183,7 +226,7 @@ public class FavoriteFragment extends Fragment {
                     items.add(item);
                 }
 
-                //Todo, need debug
+                //Todo, need debug, if has too many items, it may repeat?
                 nextToken = response.getNextPageToken();
 
             }while(nextToken != null);
@@ -223,20 +266,14 @@ public class FavoriteFragment extends Fragment {
                 pub_date.setText(favoriteResult.getPub_date().toString().substring(0, 10));
 
 
-                //Todo need add listener for check_box_select to remove the video from playlist
+                //add listener for check_box_select to remove the video from playlist
                 checkBox_select.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Log.d(TAG, "Delete checkbox is clicked ");
+                        //send the playlistitem Id to deleteIDs
+                        deleteIDs.add(favoriteResult.getPlaylistItemId());
 
-                        //Todo, should call at the options menus
-                        //call the method to delete the video from Playlist
-                        // deletePlaylistItem(playlistID,"aYuGVRC89sM" );
-                        deletePlaylistItem(favoriteResult.getPlaylistItemId());
-                        Toast.makeText(getActivity().getApplicationContext(),
-                                "The video " + favoriteResult.getTitle() + " is deleted from your playlist", Toast.LENGTH_LONG).show();
-
-                        //Todo, need to update list
+                        Log.d(TAG, favoriteResult.getPlaylistItemId()+ " delete checkbox is clicked ");
                     }
 
                 });
@@ -248,6 +285,7 @@ public class FavoriteFragment extends Fragment {
         };
         //Assign adapter to Listview
         videosFavorite.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
 
