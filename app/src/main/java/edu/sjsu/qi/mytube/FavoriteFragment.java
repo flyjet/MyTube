@@ -17,6 +17,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.http.javanet.NetHttpTransport;
@@ -24,6 +25,8 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.PlaylistItem;
 import com.google.api.services.youtube.model.PlaylistItemListResponse;
+import com.google.api.services.youtube.model.PlaylistItemSnippet;
+import com.google.api.services.youtube.model.ResourceId;
 import com.google.api.services.youtube.model.Video;
 import com.squareup.picasso.Picasso;
 
@@ -147,7 +150,7 @@ public class FavoriteFragment extends Fragment {
                     youtube.playlistItems().list("id,contentDetails,snippet");
             playlistItemRequest.setPlaylistId(playlistID);
             playlistItemRequest.
-                    setFields("items(contentDetails/videoId,snippet/title,snippet/publishedAt,snippet/thumbnails/default/url),nextPageToken,pageInfo");
+                    setFields("items(id,contentDetails/videoId,snippet/title,snippet/publishedAt,snippet/thumbnails/default/url),nextPageToken,pageInfo");
 
             String nextToken = "";
             List<VideoItem> items = new ArrayList<VideoItem>();
@@ -163,6 +166,7 @@ public class FavoriteFragment extends Fragment {
                     item.setTitle(i.getSnippet().getTitle());
                     item.setThumbnailURL(i.getSnippet().getThumbnails().getDefault().getUrl());
                     item.setPub_date(i.getSnippet().getPublishedAt());
+                    item.setPlaylistItemId(i.getId());
 
                     // getViewCount from video Id
                     YouTubeConnector yc = new YouTubeConnector(getActivity());
@@ -172,12 +176,14 @@ public class FavoriteFragment extends Fragment {
                         Video video = listVideosRequest.execute().getItems().get(0);
                         BigInteger viewCount = video.getStatistics().getViewCount();
                         item.setViews(viewCount);
+
                     }catch (IOException e) {
                         Log.d("YC", "Could not query viewCount: " + e);
                     }
-
                     items.add(item);
                 }
+
+                //Todo, need debug
                 nextToken = response.getNextPageToken();
 
             }while(nextToken != null);
@@ -221,10 +227,19 @@ public class FavoriteFragment extends Fragment {
                 checkBox_select.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        Log.d(TAG, "Delete checkbox is clicked ");
 
+                        //Todo, should call at the options menus
+                        //call the method to delete the video from Playlist
+                        // deletePlaylistItem(playlistID,"aYuGVRC89sM" );
+                        deletePlaylistItem(favoriteResult.getPlaylistItemId());
+                        Toast.makeText(getActivity().getApplicationContext(),
+                                "The video " + favoriteResult.getTitle() + " is deleted from your playlist", Toast.LENGTH_LONG).show();
+
+                        //Todo, need to update list
                     }
-                });
 
+                });
 
                 //checkbox_favorite for fragment favorite, here is invisible
                 convertView.findViewById(R.id.checkbox_favorite).setVisibility(View.INVISIBLE);
@@ -234,4 +249,39 @@ public class FavoriteFragment extends Fragment {
         //Assign adapter to Listview
         videosFavorite.setAdapter(adapter);
     }
+
+
+    // Delete video to playlist
+    protected void deletePlaylistItem(final String videoId) {
+        Log.d(TAG, "Token is: " + accessToken);
+        Log.d(TAG, "videoId is: " + videoId);
+
+        new Thread(){
+            public void run(){
+
+                GoogleCredential credential = new GoogleCredential.Builder()
+                        .setTransport(new NetHttpTransport())
+                        .setJsonFactory(new JacksonFactory()).build();
+                credential.setAccessToken(accessToken);
+
+                // This object is used to make YouTube Data API requests.
+                YouTube youtube;
+
+                youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), credential)
+                        .setApplicationName("MyTube")
+                        .build();
+
+                // Call the API to delete the playlist item to the specified playlist.
+                try {
+                    YouTube.PlaylistItems.Delete playlistItemsDeleteCommand = youtube.playlistItems().delete (videoId);
+                            playlistItemsDeleteCommand.execute();
+                    Log.d(TAG, "Item is deleted from playlist ");
+
+                } catch (IOException e) {
+                    Log.d(TAG, "Could not deleted video item from playlist: " + e);
+                }
+            }
+        }.start();
+    }
+
 }

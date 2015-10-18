@@ -50,7 +50,7 @@ public class SearchFragment extends Fragment {
     //  ="ya29.DwLcwWdjMie5iMMxB-JOaGu_5lnz-p-e5pPuxSMijOb6cRPdKs_1rom0vRZb72o_aYt4ng";
 
     //This is the ID for Playlist of SJSU-CMPE-277 under my channel "Annie Cao"
-    private String palylistID;
+    private String playlistID;
             //"PLcmb3fCvZSrX8xVUUzfqN8RfZBXlhrvjf";
     private String PLAYLIST_TITLE = "SJSU-CMPE-277";
 
@@ -68,8 +68,8 @@ public class SearchFragment extends Fragment {
         Log.d(TAG, "Token from mytube activity: " + accessToken);
 
         //Get PlayList Id from MyTube Activity
-        palylistID = getArguments().getString("PlaylistId");
-        Log.d(TAG, "Playlist_id from mytube activity: " + palylistID);
+        playlistID = getArguments().getString("PlaylistId");
+        Log.d(TAG, "Playlist_id from mytube activity: " + playlistID);
     }
 
     @Override
@@ -196,7 +196,7 @@ public class SearchFragment extends Fragment {
                         Log.d(TAG, "Checkbox favorite is clicked ");
 
                         //call the method to insert the video to Playlist
-                        insertPlaylistItem(palylistID, searchResult.getId());
+                        insertPlaylistItem(playlistID, searchResult.getId());
                         Toast.makeText(getActivity().getApplicationContext(),
                                 "The video " + searchResult.getTitle() + " is inserted to your playlist", Toast.LENGTH_LONG).show();
                     }

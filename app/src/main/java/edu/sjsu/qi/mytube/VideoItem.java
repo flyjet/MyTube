@@ -16,6 +16,7 @@ public class VideoItem {
     private DateTime pub_date;
     private String thumbnailURL;
     private boolean favorite;
+    private String playlistItemId;
 
     public String getId() {
         return id;
@@ -65,4 +66,11 @@ public class VideoItem {
         this.favorite = favorite;
     }
 
+    public String getPlaylistItemId(){
+        return playlistItemId;
+    }
+
+    public void setPlaylistItemId(String playlistItemId) {
+        this.playlistItemId = playlistItemId;
+    }
 }
